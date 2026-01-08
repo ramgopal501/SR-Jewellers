@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SR Jewellery - Vaddi Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 min-h-screen font-sans">
+
+    <nav class="bg-blue-700 text-white p-4 shadow-lg sticky top-0 z-50">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold uppercase tracking-tighter">SR Jewellery</h1>
+            <button onclick="location.reload()" class="text-white opacity-80"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+    </nav>
+
+    <div class="max-w-md mx-auto p-4 space-y-4">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+            
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Customer Details</label>
+                <input type="text" id="custName" placeholder="Name" class="w-full mt-1 p-3 bg-slate-50 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="text" id="goldDetails" placeholder="Gold Weight / Item Details" class="w-full mt-2 p-3 bg-slate-50 border rounded-xl outline-none">
+            </div>
+
+            <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100">
+                <label class="text-[10px] font-bold text-blue-600 uppercase">Principal Amount (Asalu)</label>
+                <div class="flex items-center text-2xl font-bold text-blue-800">
+                    <span class="mr-2">₹</span>
+                    <input type="number" id="principal" placeholder="0" class="w-full bg-transparent outline-none">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-slate-50 p-3 rounded-xl border">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Taken Date</label>
+                    <input type="date" id="startDate" class="w-full bg-transparent font-medium outline-none cursor-pointer">
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Return Date</label>
+                    <input type="date" id="endDate" class="w-full bg-transparent font-medium outline-none cursor-pointer">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Interest Rate (per 100/month)</label>
+                <div class="flex gap-2 mt-1">
+                    <button onclick="setRate(2)" id="r2" class="rate-chip flex-1 py-3 rounded-xl border font-bold bg-blue-600 text-white border-blue-600">₹2</button>
+                    <button onclick="setRate(3)" id="r3" class="rate-chip flex-1 py-3 rounded-xl border font-bold text-slate-600">₹3</button>
+                    <button onclick="setRate(5)" id="r5" class="rate-chip flex-1 py-3 rounded-xl border font-bold text-slate-600">₹5</button>
+                </div>
+            </div>
+
+            <button onclick="calculate()" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95">
+                <i class="fa-solid fa-calculator mr-2"></i> CALCULATE NOW
+            </button>
+        </div>
+
+        <div id="resultCard" class="hidden bg-white rounded-2xl shadow-xl border-2 border-blue-600 p-6 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 text-[10px] rounded-bl-lg font-bold">RECEIPT</div>
+            
+            <div class="text-center border-b border-dashed border-slate-300 pb-4 mb-4">
+                <h2 class="text-xl font-black text-slate-800">SR JEWELLERY</h2>
+                <p class="text-xs text-slate-500 italic" id="receiptDate"></p>
+            </div>
+
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-slate-500">Customer:</span><span id="resName" class="font-bold">-</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Items:</span><span id="resGold" class="font-bold">-</span></div>
+                <div class="flex justify-between border-t pt-2 mt-2"><span class="text-slate-500">Principal:</span><span id="resP" class="font-bold text-blue-700">₹0</span></div>
+                <div class="flex justify-between"><span class="text-slate-500">Duration:</span><span id="resDuration" class="font-bold">0m 0d</span></div>
+                <div class="flex justify-between"><span class="text-slate-500 text-[10px]">(Total Days: <span id="resTotalDays">0</span>)</span></div>
+                
+                <div class="bg-blue-50 p-4 rounded-xl mt-4">
+                    <div class="flex justify-between text-blue-900"><span class="font-medium">Interest (Vaddi):</span><span id="resVaddi" class="font-black text-lg">₹0</span></div>
+                    <div class="flex justify-between text-green-700 border-t border-blue-200 pt-2 mt-2"><span class="font-bold text-lg">Total Payable:</span><span id="resTotal" class="font-black text-xl">₹0</span></div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex gap-2">
+                <button onclick="window.print()" class="flex-1 bg-slate-100 py-3 rounded-xl text-slate-700 font-bold"><i class="fa-solid fa-print"></i></button>
+                <button onclick="share()" class="flex-3 bg-green-500 text-white py-3 rounded-xl font-bold flex-[2]"><i class="fa-brands fa-whatsapp mr-1"></i> SHARE</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedRate = 2;
+        document.getElementById('endDate').valueAsDate = new Date();
+
+        function setRate(val) {
+            selectedRate = val;
+            document.querySelectorAll('.rate-chip').forEach(btn => {
+                btn.className = "rate-chip flex-1 py-3 rounded-xl border font-bold text-slate-600";
+            });
+            document.getElementById('r'+val).className = "rate-chip flex-1 py-3 rounded-xl border font-bold bg-blue-600 text-white border-blue-600";
+        }
+
+        function calculate() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const start = moment(document.getElementById('startDate').value);
+            const end = moment(document.getElementById('endDate').value);
+
+            if(!principal || !start.isValid()) {
+                alert("Please select Start Date and Principal Amount");
+                return;
+            }
+
+            // Time Math
+            const totalDays = end.diff(start, 'days');
+            const months = Math.floor(totalDays / 30);
+            const extraDays = totalDays % 30;
+
+            // Vaddi Math
+            const monthlyInterest = (principal / 100) * selectedRate;
+            const dailyInterest = monthlyInterest / 30;
+            const totalVaddi = (monthlyInterest * months) + (dailyInterest * extraDays);
+            const grandTotal = principal + totalVaddi;
+
+            // UI Update
+            document.getElementById('resName').innerText = document.getElementById('custName').value || "Walk-in Customer";
+            document.getElementById('resGold').innerText = document.getElementById('goldDetails').value || "Not Specified";
+            document.getElementById('resP').innerText = "₹" + principal.toLocaleString();
+            document.getElementById('resDuration').innerText = `${months} Months, ${extraDays} Days`;
+            document.getElementById('resTotalDays').innerText = totalDays;
+            document.getElementById('resVaddi').innerText = "₹" + totalVaddi.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('resTotal').innerText = "₹" + grandTotal.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('receiptDate').innerText = moment().format('DD MMM YYYY, h:mm a');
+
+            document.getElementById('resultCard').classList.remove('hidden');
+            window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+        }
+
+        function share() {
+            const name = document.getElementById('resName').innerText;
+            const total = document.getElementById('resTotal').innerText;
+            const dur = document.getElementById('resDuration').innerText;
+            const text = `*SR JEWELLERY VADDI RECEIPT*%0A*Customer:* ${name}%0A*Duration:* ${dur}%0A*Total Amount:* ${total}`;
+            window.open(`https://wa.me/?text=${text}`);
+        }
+    </script>
+
+    <style>
+        @media print {
+            body { background: white; }
+            nav, button, input, .bg-white { visibility: hidden; }
+            #resultCard { visibility: visible; position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; }
+            #resultCard * { visibility: visible; }
+        }
+    </style>
+</body>
+</html>
